@@ -1,0 +1,10 @@
+#
+# mbedtls
+#
+---
+        
+exports:
+    header-dirs :
+        - include
+    modules :
+        mbedtls   :          library

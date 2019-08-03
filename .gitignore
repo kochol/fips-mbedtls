@@ -41,3 +41,4 @@ massif-*
 /GTAGS
 /TAGS
 /tags
+.fips-imports.cmake

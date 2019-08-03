@@ -146,21 +146,20 @@ elseif(USE_STATIC_MBEDTLS_LIBRARY)
 endif()
 
 if(USE_STATIC_MBEDTLS_LIBRARY)
-    add_library(${mbedcrypto_static_target} STATIC ${src_crypto})
-    set_target_properties(${mbedcrypto_static_target} PROPERTIES OUTPUT_NAME mbedcrypto)
-    target_link_libraries(${mbedcrypto_static_target} ${libs})
+    fips_begin_lib(mbedcrypto)
+        fips_files(${src_crypto})        
+        fips_libs(${libs})
+    fips_end_lib()
 
-    add_library(${mbedx509_static_target} STATIC ${src_x509})
-    set_target_properties(${mbedx509_static_target} PROPERTIES OUTPUT_NAME mbedx509)
-    target_link_libraries(${mbedx509_static_target} ${libs} ${mbedcrypto_static_target})
+    fips_begin_lib(mbedx509)
+        fips_files(${src_x509})
+        fips_libs(${libs} mbedcrypto)
+    fips_end_lib()
 
-    add_library(${mbedtls_static_target} STATIC ${src_tls})
-    set_target_properties(${mbedtls_static_target} PROPERTIES OUTPUT_NAME mbedtls)
-    target_link_libraries(${mbedtls_static_target} ${libs} ${mbedx509_static_target})
-
-    install(TARGETS ${mbedtls_static_target} ${mbedx509_static_target} ${mbedcrypto_static_target}
-            DESTINATION ${LIB_INSTALL_DIR}
-            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    fips_begin_lib(mbedtls)
+        fips_files(${src_tls})
+        fips_libs(${libs} mbedx509)
+    fips_end_lib()
 endif(USE_STATIC_MBEDTLS_LIBRARY)
 
 if(USE_SHARED_MBEDTLS_LIBRARY)

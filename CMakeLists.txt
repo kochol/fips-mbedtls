@@ -1,14 +1,12 @@
+#
+# project: mbedtls
+#
 cmake_minimum_required(VERSION 2.6)
-if(TEST_CPP)
-    project("mbed TLS" C CXX)
-else()
-    project("mbed TLS" C)
-endif()
 
 option(USE_PKCS11_HELPER_LIBRARY "Build mbed TLS with the pkcs11-helper library." OFF)
 option(ENABLE_ZLIB_SUPPORT "Build mbed TLS with zlib library." OFF)
 
-option(ENABLE_PROGRAMS "Build mbed TLS programs." ON)
+option(ENABLE_PROGRAMS "Build mbed TLS programs." OFF)
 
 option(UNSAFE_BUILD "Allow unsafe builds. These builds ARE NOT SECURE." OFF)
 
@@ -21,7 +19,7 @@ string(REGEX MATCH "MSVC" CMAKE_COMPILER_IS_MSVC "${CMAKE_C_COMPILER_ID}")
 if(CMAKE_COMPILER_IS_MSVC)
     option(ENABLE_TESTING "Build mbed TLS tests." OFF)
 else()
-    option(ENABLE_TESTING "Build mbed TLS tests." ON)
+    option(ENABLE_TESTING "Build mbed TLS tests." OFF)
 endif()
 
 # Warning string - created as a list for compatibility with CMake 2.8
@@ -173,22 +171,29 @@ else()
     set(LIB_INSTALL_DIR lib)
 endif()
 
-include_directories(include/)
+# include the fips main cmake file
+get_filename_component(FIPS_ROOT_DIR "../fips" ABSOLUTE)
+include("${FIPS_ROOT_DIR}/cmake/fips.cmake")
 
-if(ENABLE_ZLIB_SUPPORT)
-    find_package(ZLIB)
+fips_setup(PROJECT yojimbo)
+	fips_include_directories(include)
 
-    if(ZLIB_FOUND)
-        include_directories(${ZLIB_INCLUDE_DIR})
-    endif(ZLIB_FOUND)
-endif(ENABLE_ZLIB_SUPPORT)
+    if(ENABLE_ZLIB_SUPPORT)
+        find_package(ZLIB)
 
-add_subdirectory(library)
-add_subdirectory(include)
+        if(ZLIB_FOUND)
+            include_directories(${ZLIB_INCLUDE_DIR})
+        endif(ZLIB_FOUND)
+    endif(ENABLE_ZLIB_SUPPORT)
 
-if(ENABLE_PROGRAMS)
-    add_subdirectory(programs)
-endif()
+    fips_add_subdirectory(library)
+    fips_add_subdirectory(include)
+
+    if(ENABLE_PROGRAMS)
+        fips_add_subdirectory(programs)
+    endif()
+
+fips_finish()
 
 ADD_CUSTOM_TARGET(apidoc
     COMMAND doxygen mbedtls.doxyfile
