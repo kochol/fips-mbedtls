@@ -147,8 +147,10 @@ endif()
 
 if(USE_STATIC_MBEDTLS_LIBRARY)
     fips_begin_lib(mbedcrypto)
-        fips_files(${src_crypto})        
-        fips_libs(${libs})
+        fips_files(${src_crypto})     
+        if (DEFINED ${libs})
+            fips_libs(${libs})
+        endif()
     fips_end_lib()
 
     fips_begin_lib(mbedx509)
