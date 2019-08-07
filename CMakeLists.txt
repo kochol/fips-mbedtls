@@ -171,29 +171,34 @@ else()
     set(LIB_INSTALL_DIR lib)
 endif()
 
-# include the fips main cmake file
-get_filename_component(FIPS_ROOT_DIR "../fips" ABSOLUTE)
-include("${FIPS_ROOT_DIR}/cmake/fips.cmake")
+if (NOT FIPS_IMPORT)
+    # include the fips main cmake file
+    get_filename_component(FIPS_ROOT_DIR "../fips" ABSOLUTE)
+    include("${FIPS_ROOT_DIR}/cmake/fips.cmake")
 
-fips_setup(PROJECT yojimbo)
-	fips_include_directories(include)
+    fips_setup(PROJECT mbedtls)
+endif()
 
-    if(ENABLE_ZLIB_SUPPORT)
-        find_package(ZLIB)
+fips_include_directories(include)
 
-        if(ZLIB_FOUND)
-            include_directories(${ZLIB_INCLUDE_DIR})
-        endif(ZLIB_FOUND)
-    endif(ENABLE_ZLIB_SUPPORT)
+if(ENABLE_ZLIB_SUPPORT)
+    find_package(ZLIB)
 
-    fips_add_subdirectory(library)
-    fips_add_subdirectory(include)
+    if(ZLIB_FOUND)
+        include_directories(${ZLIB_INCLUDE_DIR})
+    endif(ZLIB_FOUND)
+endif(ENABLE_ZLIB_SUPPORT)
 
+fips_add_subdirectory(library)
+fips_add_subdirectory(include)
+
+if (NOT FIPS_IMPORT)
     if(ENABLE_PROGRAMS)
         fips_add_subdirectory(programs)
     endif()
 
-fips_finish()
+    fips_finish()
+endif()
 
 ADD_CUSTOM_TARGET(apidoc
     COMMAND doxygen mbedtls.doxyfile

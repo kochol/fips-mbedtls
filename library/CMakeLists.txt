@@ -155,12 +155,12 @@ if(USE_STATIC_MBEDTLS_LIBRARY)
 
     fips_begin_lib(mbedx509)
         fips_files(${src_x509})
-        fips_libs(${libs} mbedcrypto)
+        fips_libs(mbedcrypto)
     fips_end_lib()
 
     fips_begin_lib(mbedtls)
         fips_files(${src_tls})
-        fips_libs(${libs} mbedx509)
+        fips_libs(mbedx509)
     fips_end_lib()
 endif(USE_STATIC_MBEDTLS_LIBRARY)
 
@@ -181,8 +181,3 @@ if(USE_SHARED_MBEDTLS_LIBRARY)
             DESTINATION ${LIB_INSTALL_DIR}
             PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif(USE_SHARED_MBEDTLS_LIBRARY)
-
-add_custom_target(lib DEPENDS mbedcrypto mbedx509 mbedtls)
-if(USE_STATIC_MBEDTLS_LIBRARY AND USE_SHARED_MBEDTLS_LIBRARY)
-    add_dependencies(lib mbedcrypto_static mbedx509_static mbedtls_static)
-endif()
